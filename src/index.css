@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add minimal global styles below if needed */
+body {
+  @apply bg-gray-100 text-gray-800 font-sans transition-colors duration-300;
+}
+
+.dark body {
+  @apply bg-gray-950 text-gray-100;
+}
+
