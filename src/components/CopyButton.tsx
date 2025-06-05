@@ -22,7 +22,6 @@ export default function CopyButton({ text, label }: CopyButtonProps) {
             title={`Copy ${label}`}
         >
             {copied ? <Check size={12} /> : <Copy size={12} />}
-            {copied ? 'Copied!' : 'Copy'}
         </button>
     );
 } 

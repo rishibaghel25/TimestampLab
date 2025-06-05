@@ -9,8 +9,9 @@ export default function TimestampConverter() {
     const [date, setDate] = useState('');
     const [unix, setUnix] = useState<number | null>(null);
     const [unixInput, setUnixInput] = useState('');
-    const [convertedDate, setConvertedDate] = useState<Date | null>(null);
+    const [convertedDates, setConvertedDates] = useState<Date[]>([]);
     const [currentUnix, setCurrentUnix] = useState(Math.floor(Date.now() / 1000));
+    const [invalidTimestamps, setInvalidTimestamps] = useState<string[]>([]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -30,10 +31,16 @@ export default function TimestampConverter() {
 
     const handleUnixChange = (value: string) => {
         setUnixInput(value);
-        if (value && !isNaN(Number(value))) {
-            setConvertedDate(fromUnix(Number(value)));
+        if (value) {
+            const rawTimestamps = value.split(',').map(v => v.trim());
+            const validTimestamps = rawTimestamps.filter(v => v && /^-?\d+$/.test(v));
+            const invalids = rawTimestamps.filter(v => v && !/^-?\d+$/.test(v));
+            const dates = validTimestamps.map(ts => fromUnix(Number(ts)));
+            setConvertedDates(dates);
+            setInvalidTimestamps(invalids);
         } else {
-            setConvertedDate(null);
+            setConvertedDates([]);
+            setInvalidTimestamps([]);
         }
     };
 
@@ -46,7 +53,7 @@ export default function TimestampConverter() {
 
     const setCurrentUnixTime = () => {
         setUnixInput(currentUnix.toString());
-        setConvertedDate(new Date(currentUnix * 1000));
+        setConvertedDates([new Date(currentUnix * 1000)]);
     };
 
     return (
@@ -119,29 +126,38 @@ export default function TimestampConverter() {
                     <div>
                         <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Enter Unix Timestamp</label>
                         <input
-                            type="number"
+                            type="text"
                             value={unixInput}
                             onChange={(e) => handleUnixChange(e.target.value)}
-                            placeholder="e.g., 1640995200"
+                            placeholder="e.g., 1640995200 or 1640995200,1749110342"
                             className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-gray-100"
                         />
+                        {invalidTimestamps.length > 0 && (
+                            <div className="mt-2 text-sm text-red-500">
+                                Invalid timestamp(s): {invalidTimestamps.join(', ')}
+                            </div>
+                        )}
                     </div>
-                    {convertedDate && (
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">Local Date</p>
-                                    <p className="font-semibold dark:text-white">{convertedDate.toLocaleString()}</p>
+                    {convertedDates.length > 0 && (
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-4">
+                            {convertedDates.map((convertedDate, idx) => (
+                                <div key={idx} className="space-y-2 border-b last:border-b-0 border-gray-200 dark:border-gray-700 pb-2 last:pb-0">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">Local Date</p>
+                                            <p className="font-semibold dark:text-white">{convertedDate.toLocaleString()}</p>
+                                        </div>
+                                        <CopyButton text={convertedDate.toLocaleString()} label="local date" />
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">ISO String</p>
+                                            <p className="font-mono text-sm dark:text-white">{convertedDate.toISOString()}</p>
+                                        </div>
+                                        <CopyButton text={convertedDate.toISOString()} label="ISO string" />
+                                    </div>
                                 </div>
-                                <CopyButton text={convertedDate.toLocaleString()} label="local date" />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">ISO String</p>
-                                    <p className="font-mono text-sm dark:text-white">{convertedDate.toISOString()}</p>
-                                </div>
-                                <CopyButton text={convertedDate.toISOString()} label="ISO string" />
-                            </div>
+                            ))}
                         </div>
                     )}
                 </div>
