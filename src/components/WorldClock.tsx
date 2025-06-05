@@ -42,7 +42,6 @@ export default function WorldClock() {
         // Get local offset in minutes
         const localOffset = -now.getTimezoneOffset(); // in minutes
         // Get target offset in minutes
-        const dtf = new Intl.DateTimeFormat('en-US', { timeZone: timezone, timeZoneName: 'short' });
         // Get the offset in minutes for the target timezone
         const targetDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
         const targetOffset = (targetDate.getTime() - now.getTime() + localOffset * 60000) / 60000;
@@ -57,12 +56,6 @@ export default function WorldClock() {
             : `${sign}${hours}h ${minutes}m`;
     };
 
-    const getTimezoneOffset = (timezone: string) => {
-        const now = new Date();
-        const utc1 = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
-        const utc2 = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
-        return (utc2.getTime() - utc1.getTime()) / (1000 * 60 * 60);
-    };
 
     // Detect user's local timezone
     const userTimezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
