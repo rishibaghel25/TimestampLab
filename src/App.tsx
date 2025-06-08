@@ -6,14 +6,22 @@ import { Moon, Sun } from 'lucide-react';
 import logo from './assets/timestamplab-logo.png';
 
 export default function EpochTimeConverter() {
-    const [darkMode, setDarkMode] = useState(true);
+    const [darkMode, setDarkMode] = useState(() => {
+        // Check localStorage on first load
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('theme') === 'dark';
+        }
+        return true; // fallback to dark by default
+    });
 
     useEffect(() => {
         const root = window.document.documentElement;
         if (darkMode) {
             root.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
         } else {
             root.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
         }
     }, [darkMode]);
 
@@ -44,14 +52,11 @@ export default function EpochTimeConverter() {
 
             {/* Main Content */}
             <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-                {/* Mobile: Stack vertically, Desktop: Different layout */}
                 <div className="block lg:hidden space-y-6">
                     <TimestampConverter />
                     <WorldClock />
                     <TimeCalculator />
                 </div>
-
-                {/* Desktop Layout */}
                 <div className="hidden lg:block">
                     <div className="grid lg:grid-cols-4 gap-8">
                         <div className="lg:col-span-2 space-y-8">
@@ -63,7 +68,6 @@ export default function EpochTimeConverter() {
                         <div className="lg:col-span-4">
                             <WorldClock />
                         </div>
-                       
                     </div>
                 </div>
             </div>
